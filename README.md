@@ -1,0 +1,2 @@
+# stockshef
+algorithm trader

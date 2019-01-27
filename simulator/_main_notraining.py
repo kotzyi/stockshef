@@ -1,8 +1,8 @@
 import logging
 import os
 import settings
-import data_manager
-from policy_learner import PolicyLearner
+from preprocessor import data_manager
+from trainer.policy_learner import PolicyLearner
 
 
 if __name__ == '__main__':

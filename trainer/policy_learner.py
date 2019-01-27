@@ -3,10 +3,10 @@ import locale
 import logging
 import numpy as np
 import settings
-from environment import Environment
-from agent import Agent
-from policy_network import PolicyNetwork
-from visualizer import Visualizer
+from trainer.environment import Environment
+from trainer.agent import Agent
+from networks.policy_network import PolicyNetwork
+from visualizer.visualizer import Visualizer
 
 
 logger = logging.getLogger(__name__)

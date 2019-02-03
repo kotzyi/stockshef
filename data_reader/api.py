@@ -1,7 +1,7 @@
 import win32com.client
 
 
-class Creon:
+class API:
     def __init__(self):
         self.obj_CpCodeMgr = win32com.client.Dispatch('CpUtil.CpCodeMgr')
         self.obj_CpCybos = win32com.client.Dispatch('CpUtil.CpCybos')
@@ -212,10 +212,24 @@ class Creon:
             KONEX: CPC_MARKET_KONEX= 5,
         :return: 입력한 시장구분(CPE_MARKET_KIND)에 해당하는 종목리스트(배열)
         '''
-        return self.obj_CpCodeMgr.GetStockListByMarket(code)
+        return self.obj_CpCodeMgr.GetStockListByMarket(stock_market_num)
 
     def get_chart_data_count(self):
         return self.obj_StockChart.GetHeaderValue(3)
 
     def get_data_value(self, pos, i):
         return self.obj_StockChart.GetDataValue(pos, i)
+
+    def limit_request_remain_in_time(self):
+        return self.obj_CpCybos.LimitRequestRemainTime
+
+    def get_limit_remain_count(self, limit_type):
+        '''
+
+        :param limit_type: limitType: 요쳥에대한 제한 타입
+            0: LT_TRADE_REQUEST - 주문관련 RQ 요청
+            1: LT_NONTRADE_REQUEST - 시세관련 RQ 요청
+            2: LT_SUBSCRIBE - 시세관련 SB
+        :return: 제한을 하기전까지의 남은요청 개수
+        '''
+        return self.obj_CpCybos.GetLimitRemainCount(limit_type)

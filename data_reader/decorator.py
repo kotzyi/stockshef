@@ -3,6 +3,20 @@ import win32com.client
 from PyQt5.QtWidgets import *
 
 
+def data_checker(original_function):
+    '''
+    쿼리대로 데이터가 모두 들어왔는지 체크하는 데커레이터
+
+    :param original_function: 데커레이터 받는 함수
+    :return:
+    '''
+
+    def wrapper(*args, **kwargs):
+        return original_function(*args, **kwargs)
+
+    return wrapper
+
+
 def limit_checker(original_function):
     '''
     시세조회 API call 제한관련 데커레이터

@@ -1,6 +1,7 @@
 import argparse
 from read import Read
-from enums import *
+from fieldkey import *
+from inquery import *
 
 
 def main():
@@ -50,10 +51,39 @@ def main():
     read.check_api_connection()
 
     field_key=[0,1,2,3,4,5,6]
-    query = read.gen_query(date_from="20190102", date_to="20190110", chart_class=ChartClass.DAY.value, type=ReqType.TERM.value, field_key=field_key)
+    query = read.gen_query(date_from="20190102", date_to="20190110", chart_class=DAY, type=TERM, field_key=field_key)
 
-    chart_data = read.get_stock_chart(query)
-    print(chart_data)
+    #chart_data = read.get_stock_chart(query)
+    #print(chart_data)
+
+def get_day_inquery(code, date_to, date_from):
+    '''
+    얻을 수 있는 모든 정보를 포함한 일일 Chart 를 얻는 쿼리반환
+
+    :param code: 주식 코드
+    :param date_to: 얻고자 하는 최종 날짜
+    :param date_from: 시작 날짜
+    :return:
+    '''
+
+    field_key = [DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, NUM_SHARES, MKT_CAP, FOREIGN_OWNER_LIMIT,
+                 FOREIGN_OWNER_AVAIL, FOREIGN_OWNER_VOL, FOREIGN_OWNER_RATIO, ADJ_PRICE_DATE, ADJ_PRICE_RATIO,
+                 INT_NET_BUY, INT_CUM_NET_BUY, C_CODE]
+
+    return self.gen_inquery(code=code, date_to=date_to, date_from=date_from, field_key=field_key)
+
+def get_min_inquery(code, date_to, date_from):
+    '''ㅡ
+    얻을 수 있는 모든 정보를 포함한 분당 Chart 를 얻는 쿼리반환
+
+    :param code: 주식 코드
+    :param date_to: 최종 날짜
+    :param date_from: 시작 날짜
+    :return:
+    '''
+    field_key = [DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, SELLING_VOL, BUYING_VOL, C_CODE]
+
+    return self.gen_inquery(code=code, date_to=date_to, date_from=date_from, type=MIN, field_key=field_key)
 
 
 if __name__ == '__main__':

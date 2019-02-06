@@ -1,37 +1,10 @@
 from enum import Enum
 
 
-class ReqType(Enum):
-    TERM = 49
-    COUNT = 50
-
-
-class GapComp(Enum):
-    NO = 49
-    YES = 50
-
-
-class AdjPrice(Enum):
-    NO = 49
-    YES = 50
-
-
-class ChartClass(Enum):
-    TICK = ord('T')
-    MIN = ord('m')
-    DAY = ord('D')
-    WEEK = ord('W')
-    MONTH = ord('M')
-
-
-class VolClass(Enum):
-    INCLUDE_ALL = 1
-    INCLUDE_ONLY_AFTER_HOURS = 2
-    INCLUDE_ON_TIME = 3
-    INCLUDE_PRE_MARKET = 4
-
-
 class FieldKey(Enum):
+    def __str__(self):
+        return str(self.value)
+
     DATE = 0
     TIME = 1
     OPEN = 2
@@ -59,4 +32,3 @@ class FieldKey(Enum):
     TURNOVER = 25
     RATIO_OF_DEALS = 26
     C_CODE = 37
-

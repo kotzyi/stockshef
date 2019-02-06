@@ -2,7 +2,8 @@ import sys
 import pandas as pd
 import datetime
 from api import API
-from enums import FieldKey, ReqType, GapComp, AdjPrice, VolClass, ChartClass
+from inquery import *
+from fieldkey import *
 from decorator import limit_checker
 
 
@@ -48,6 +49,7 @@ class Read:
     def _check_db_connection(self):
         '''
         DB 접속 여부를 확인하여 접속 여부를 화면에 출력하고 접속되지 않았다면 프로그램 종료
+
         :return: 접속여부에 대한 메시지 출력
         '''
         status, msg = self.api.is_db_connect()
@@ -58,6 +60,7 @@ class Read:
     def _check_creon_connection(self):
         '''
         크레온 접속 여부를 확인하여, 접속 여부를 화면에 출력하고 접속되지 않았다면 프로그램 종료
+
         :return: 접속 여부에 대한 메시지 출력
         '''
         b_connected = self.api.is_creon_connect()
@@ -70,6 +73,7 @@ class Read:
     def check_api_connection(self):
         '''
         종합적인 API connection을 체크
+
         :return: 접속 여부에 대한 메시지 출력
         '''
         self._check_creon_connection()
@@ -77,8 +81,8 @@ class Read:
 
     def get_stock_code_list(self, stock_market_num):
         '''
-        미완성코드
         입력받은 마켓의 코드 리스트를 리턴
+
         :param stock_market_num:
             거래소: CPC_MARKET_KOSPI= 1,
             코스닥: CPC_MARKET_KOSDAQ= 2,
@@ -90,13 +94,14 @@ class Read:
         return self.api.get_stock_list(stock_market_num)
 
     @limit_checker
-    def get_stock_chart(self, query):
+    def get_stock_chart(self, inquery):
         '''
         입력받은 쿼리에 대하여 차트 데이터 반환
+
         :param query: dictionary 형태의 Configuration
         :return: 입력한 주식 코드의 차트 데이터(pandas dataframe)
         '''
-        self.api.request_stock_chart(query)
+        self.api.request_stock_chart(inquery)
 
         list_field_name = [self.list_field_dict[key] for key in query[5]]
         dict_chart = {name: [] for name in list_field_name}
@@ -110,17 +115,18 @@ class Read:
         print("CHART: {} {}".format(receive_cnt, dict_chart))
         return pd.DataFrame(dict_chart, columns=list_field_name)
 
-    def gen_query(self,
+
+    def gen_inquery(self,
                   code='A000030',
-                  type=ReqType.TERM.value,
+                  type=TERM,
                   date_to=datetime.datetime.today().strftime('%Y%m%d'),
                   date_from=datetime.datetime.today().strftime('%Y%m%d'),
                   req_cnt=20000,
-                  field_key=[FieldKey.DATE.value, FieldKey.TIME.value, FieldKey.OPEN.value, FieldKey.HIGH.value],
-                  chart_class=ChartClass.DAY.value,
-                  gap_comp=GapComp.NO.value,
-                  adj_price=AdjPrice.NO.value,
-                  vol_class=VolClass.INCLUDE_ALL.value):
+                  field_key=[DATE, TIME, OPEN, HIGH],
+                  chart_class=DAY,
+                  gap_comp=NO,
+                  adj_price=NO,
+                  vol_class=INCLUDE_ALL):
         '''
         차트 데이터를 조회할 수 있는 Dict 형태의 Query 를 반환
 

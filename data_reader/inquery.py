@@ -1,9 +1,13 @@
-from enum import Enum
+from aenum import IntEnum, NoAlias
 
 
-class Inquery(Enum):
-    def __str__(self):
-        return str(self.value)
+class Inquery(IntEnum, settings=NoAlias):
+    def __get__(self, instance, owner):
+        return self.value
+
+    @staticmethod
+    def list():
+        return [(e.name, e.value) for e in Inquery]
 
     TERM = 49
     COUNT = 50

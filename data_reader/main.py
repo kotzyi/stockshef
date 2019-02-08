@@ -1,8 +1,13 @@
 import argparse
+import os
+import settings
+import datetime
 from read import Read
-from fieldkey import *
-from inquery import *
+from fieldkey import FieldKey
+from inquery import Inquery
 
+globals().update(Inquery.list())
+globals().update(FieldKey.list())
 
 def main():
     '''
@@ -50,40 +55,83 @@ def main():
     read = Read()
     read.check_api_connection()
 
-    field_key=[0,1,2,3,4,5,6]
-    query = read.gen_query(date_from="20190102", date_to="20190110", chart_class=DAY, type=TERM, field_key=field_key)
+    stock_code = 'A005930'
+    #date_from = '20190102' #마지막 날짜
+    chart = get_min_chart(code=stock_code, date_from='20170118', date_to='20190207')
 
-    #chart_data = read.get_stock_chart(query)
-    #print(chart_data)
 
-def get_day_inquery(code, date_to, date_from):
+    filepath = os.path.join(settings.BASE_DIR,
+                 'data/chart/{}.csv'.format(stock_code))
+    #chart.to_csv(filepath, mode='w')
+    #print(chart)
+
+def store_chart(chart, code):
+    filepath = os.path.join(settings.BASE_DIR, 'data/chart/{}.csv'.format(code))
+
+    if os.path.isfile(filepath):
+        chart.to_csv(filepath, mode='a')
+    else:
+        chart.to_csv(filepath, mode='a')
+    print("Store Success")
+
+
+def get_day_chart(code, date_to, date_from):
     '''
-    얻을 수 있는 모든 정보를 포함한 일일 Chart 를 얻는 쿼리반환
+    얻을 수 있는 모든 정보를 포함한 일일 Chart 반환
 
     :param code: 주식 코드
     :param date_to: 얻고자 하는 최종 날짜
     :param date_from: 시작 날짜
-    :return:
+    :return: 주식 코드에 대한 일-차트 가능한 모든 데이터
     '''
+    read = Read()
 
-    field_key = [DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, NUM_SHARES, MKT_CAP, FOREIGN_OWNER_LIMIT,
+    field_key = [DATE, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, NUM_SHARES, MKT_CAP, FOREIGN_OWNER_LIMIT,
                  FOREIGN_OWNER_AVAIL, FOREIGN_OWNER_VOL, FOREIGN_OWNER_RATIO, ADJ_PRICE_DATE, ADJ_PRICE_RATIO,
                  INT_NET_BUY, INT_CUM_NET_BUY, C_CODE]
 
-    return self.gen_inquery(code=code, date_to=date_to, date_from=date_from, field_key=field_key)
+    inquery = read.gen_inquery(code=code, date_from=date_from, date_to=date_to, field_key=field_key)
+    chart = read.get_stock_chart(inquery)
+    return chart
 
-def get_min_inquery(code, date_to, date_from):
-    '''ㅡ
-    얻을 수 있는 모든 정보를 포함한 분당 Chart 를 얻는 쿼리반환
+
+
+def get_min_chart(code, date_to, date_from):
+    '''
+    얻을 수 있는 모든 정보를 포함한 분당 Chart 반환
 
     :param code: 주식 코드
     :param date_to: 최종 날짜
     :param date_from: 시작 날짜
-    :return:
+    :return: 주식 코드에 대한 분-차트 가능한 모든 데이터
     '''
+    #date_to = '20180108'
+    read = Read()
     field_key = [DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, SELLING_VOL, BUYING_VOL, C_CODE]
 
-    return self.gen_inquery(code=code, date_to=date_to, date_from=date_from, type=MIN, field_key=field_key)
+    # 분 차트에서 2017-01-18이 마지막 날
+
+    while True:
+        inquery = read.gen_inquery(code=code, date_from=date_from, date_to=date_to, field_key=field_key, chart_class=MIN)
+        print(inquery)
+        chart = read.get_stock_chart(inquery)
+        print(chart)
+        last_date = str(chart.iloc[-1, 0])
+        last_time = str(chart.iloc[-1, 1])
+
+        print("LAST: ", last_date+last_time, "TO: ", date_from)
+        store_chart(chart.head(1524), code)
+
+        if last_date == date_from and last_time == "901":
+            print("SUCCESS")
+            return chart
+            break
+
+        last_date = datetime.datetime.strptime(last_date, "%Y%m%d")
+        print(last_date)
+        date_to = last_date #- datetime.timedelta(days=1)
+        print(date_to)
+        date_to = date_to.strftime('%Y%m%d')
 
 
 if __name__ == '__main__':

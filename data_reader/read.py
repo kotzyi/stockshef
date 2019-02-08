@@ -2,10 +2,12 @@ import sys
 import pandas as pd
 import datetime
 from api import API
-from inquery import *
-from fieldkey import *
+from inquery import Inquery
+from fieldkey import FieldKey
 from decorator import limit_checker
 
+globals().update(Inquery.list())
+globals().update(FieldKey.list())
 
 class Read:
     def __init__(self):
@@ -103,7 +105,7 @@ class Read:
         '''
         self.api.request_stock_chart(inquery)
 
-        list_field_name = [self.list_field_dict[key] for key in query[5]]
+        list_field_name = [self.list_field_dict[key] for key in inquery[5]]
         dict_chart = {name: [] for name in list_field_name}
         receive_cnt = self.api.get_chart_data_count()  # 수신 개수
 
@@ -112,8 +114,9 @@ class Read:
             for k, v in dict_item.items():
                 dict_chart[k].append(v)
 
-        print("CHART: {} {}".format(receive_cnt, dict_chart))
+        #print("CHART: {} {}".format(receive_cnt, dict_chart))
         return pd.DataFrame(dict_chart, columns=list_field_name)
+
 
 
     def gen_inquery(self,
@@ -143,4 +146,5 @@ class Read:
         :return: 입력한 파라메터 형태의 차트 데이터
         '''
 
-        return {0: code, 1: type, 2: date_to, 3: date_from, 4: req_cnt, 5: field_key, 6: chart_class, 8: gap_comp, 9: adj_price, 10: vol_class}
+        return {0: code, 1: type, 2: date_to, 3: date_from, 4: req_cnt, 5: field_key, 6: chart_class, 8: gap_comp,
+                9: adj_price, 10: vol_class}

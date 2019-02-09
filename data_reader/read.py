@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import datetime
+import logging
 from api import API
 from inquery import Inquery
 from fieldkey import FieldKey
@@ -55,7 +56,7 @@ class Read:
         :return: 접속여부에 대한 메시지 출력
         '''
         status, msg = self.api.is_db_connect()
-        print("CONNECTION STATUS: {} {}".format(status, msg))
+        logging.info("CONNECTION STATUS: {} {}".format(status, msg))
         if status != 0:
             return None
 
@@ -67,10 +68,10 @@ class Read:
         '''
         b_connected = self.api.is_creon_connect()
         if b_connected == 0:
-            print("CONNECTION: Fail")
+            logging.info("CONNECTION: Fail")
             sys.exit()
         else:
-            print("CONNECTION: Success")
+            logging.info("CONNECTION: Success")
 
     def check_api_connection(self):
         '''

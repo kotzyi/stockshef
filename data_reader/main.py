@@ -77,7 +77,7 @@ def store_chart(chart, code):
 
 def get_day_chart(code, date_to, date_from):
     '''
-    얻을 수 있는 모든 정보를 포함한 일일 Chart 반환
+    얻을 수 있는 모든 정보를 포함한 Day-Chart 반환
 
     :param code: 주식 코드
     :param date_to: 얻고자 하는 최종 날짜
@@ -98,7 +98,7 @@ def get_day_chart(code, date_to, date_from):
 
 def get_min_chart(code, date_to, date_from):
     '''
-    얻을 수 있는 모든 정보를 포함한 분당 Chart 반환
+    얻을 수 있는 모든 정보를 포함한 Minute-Chart 반환
 
     :param code: 주식 코드
     :param date_to: 최종 날짜

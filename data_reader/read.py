@@ -41,6 +41,8 @@ class Read:
             26:거래성립률(float)
             37:대비부호(char) - 수신값은 GetHeaderValue 8 대비부호와동일
         '''
+        self.logger = logging.getLogger( __name__)
+
         self.api = API()
         self.list_field_dict = {0: 'date', 1: 'time', 2: 'open', 3: 'high', 4: 'low', 5: 'close', 6: 'DoD', 8: 'volume',
                                 9: 'trading_value', 10: 'sell_vol', 11: 'buy_vol', 12: 'the_number_of_shares',
@@ -56,9 +58,10 @@ class Read:
         :return: 접속여부에 대한 메시지 출력
         '''
         status, msg = self.api.is_db_connect()
-        logging.info("CONNECTION STATUS: {} {}".format(status, msg))
         if status != 0:
+            self.logger.error("CONNECT TO DATABASE: Fail")
             return None
+        self.logger.info("CONNECT TO DATABASE: Success")
 
     def _check_creon_connection(self):
         '''
@@ -68,10 +71,10 @@ class Read:
         '''
         b_connected = self.api.is_creon_connect()
         if b_connected == 0:
-            logging.info("CONNECTION: Fail")
+            self.logger.error("CONNECT TO CREON SERVER: Fail")
             sys.exit()
         else:
-            logging.info("CONNECTION: Success")
+            self.logger.info("CONNECT TO CREON SERVER: Success")
 
     def check_api_connection(self):
         '''
@@ -105,17 +108,17 @@ class Read:
         :return: 입력한 주식 코드의 차트 데이터(pandas dataframe)
         '''
         self.api.request_stock_chart(inquery)
-
         list_field_name = [self.list_field_dict[key] for key in inquery[5]]
         dict_chart = {name: [] for name in list_field_name}
-        receive_cnt = self.api.get_chart_data_count()  # 수신 개수
+        receive_cnt = self.api.get_chart_data_count()
 
         for i in range(receive_cnt):
             dict_item = ({name: self.api.get_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})
             for k, v in dict_item.items():
                 dict_chart[k].append(v)
 
-        #print("CHART: {} {}".format(receive_cnt, dict_chart))
+        self.logger.debug("RECEIVE COUNT: {}".format(receive_cnt))
+        self.logger.debug("COLUMN NAMES OF CHART: {}".format(dict_chart))
         return pd.DataFrame(dict_chart, columns=list_field_name)
 
 
@@ -146,6 +149,8 @@ class Read:
         :param vol_class: 거래량구분(char): '1':시간외 거래량 모두 포함[Default] '2': 장 종료시간외 거래량만 포함 '3':시간외 거래량 모두 제외 '4':장전시간외 거래량만 포함
         :return: 입력한 파라메터 형태의 차트 데이터
         '''
+        query = {0: code, 1: type, 2: date_to, 3: date_from, 4: req_cnt, 5: field_key, 6: chart_class, 8: gap_comp,
+         9: adj_price, 10: vol_class}
+        self.logger.debug("GENERATED QUERY: {}".format(query))
 
-        return {0: code, 1: type, 2: date_to, 3: date_from, 4: req_cnt, 5: field_key, 6: chart_class, 8: gap_comp,
-                9: adj_price, 10: vol_class}
+        return query

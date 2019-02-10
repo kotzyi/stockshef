@@ -1,10 +1,13 @@
-import argparse
 import os
-import settings
+import logging.config
+import yaml
+import config
 import datetime
+import util
 from read import Read
 from fieldkey import FieldKey
 from inquery import Inquery
+
 
 globals().update(Inquery.list())
 globals().update(FieldKey.list())
@@ -57,22 +60,19 @@ def main():
 
     stock_code = 'A005930'
     #date_from = '20190102' #마지막 날짜
-    chart = get_min_chart(code=stock_code, date_from='20170118', date_to='20190207')
+    chart = get_min_chart(code=stock_code, date_from='20181207', date_to='20181218')
 
 
-    filepath = os.path.join(settings.BASE_DIR,
+    filepath = os.path.join(config.BASE_DIR,
                  'data/chart/{}.csv'.format(stock_code))
     #chart.to_csv(filepath, mode='w')
     #print(chart)
 
 def store_chart(chart, code):
-    filepath = os.path.join(settings.BASE_DIR, 'data/chart/{}.csv'.format(code))
-
-    if os.path.isfile(filepath):
-        chart.to_csv(filepath, mode='a')
-    else:
-        chart.to_csv(filepath, mode='a')
-    print("Store Success")
+    filepath = os.path.join(config.BASE_DIR, 'data/chart/{}.csv'.format(code))
+    util.create_file(filepath)
+    chart.to_csv(filepath, mode='a')
+    ("Store Success")
 
 
 def get_day_chart(code, date_to, date_from):
@@ -95,7 +95,6 @@ def get_day_chart(code, date_to, date_from):
     return chart
 
 
-
 def get_min_chart(code, date_to, date_from):
     '''
     얻을 수 있는 모든 정보를 포함한 Minute-Chart 반환
@@ -105,34 +104,61 @@ def get_min_chart(code, date_to, date_from):
     :param date_from: 시작 날짜
     :return: 주식 코드에 대한 분-차트 가능한 모든 데이터
     '''
-    #date_to = '20180108'
+    logger = logging.getLogger(__name__)
+    logger.info("START TO READ MINUTE CHART DATA")
     read = Read()
     field_key = [DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, SELLING_VOL, BUYING_VOL, C_CODE]
-
+    last_date = None
+    last_time = None
+    chart = None
     # 분 차트에서 2017-01-18이 마지막 날
 
-    while True:
+    while not (last_date == date_from and last_time == "901"):
         inquery = read.gen_inquery(code=code, date_from=date_from, date_to=date_to, field_key=field_key, chart_class=MIN)
-        print(inquery)
         chart = read.get_stock_chart(inquery)
-        print(chart)
+        if chart is None:
+            logger.error("CHART: EMPTY")
+            return None
+
         last_date = str(chart.iloc[-1, 0])
         last_time = str(chart.iloc[-1, 1])
+        store_chart(chart.head(1524), code)  # 1524개가 분 차트에서 4일치 데이터
+        new_date_to = datetime.datetime.strptime(last_date, "%Y%m%d").strftime('%Y%m%d')
+        logger.debug("NEW_DATE_TO: {}".format(new_date_to))
+        logger.debug("DATE_TO: {}".format(date_to))
 
-        print("LAST: ", last_date+last_time, "TO: ", date_from)
-        store_chart(chart.head(1524), code)
-
-        if last_date == date_from and last_time == "901":
-            print("SUCCESS")
-            return chart
+        if new_date_to == date_to:
             break
+        date_to = new_date_to
 
-        last_date = datetime.datetime.strptime(last_date, "%Y%m%d")
-        print(last_date)
-        date_to = last_date #- datetime.timedelta(days=1)
-        print(date_to)
-        date_to = date_to.strftime('%Y%m%d')
+        logger.debug("CHART:\n{}".format(chart))
+        logger.debug("LAST: {}-{} TO: {}".format(last_date, last_time, date_from))
+
+    logger.info("DATA READING: SUCCESS {}~{}".format(last_date, date_to))
+    return chart
+
+
+def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
+    '''
+    로깅 설정
+
+    :param default_path:
+    :param default_level:
+    :param env_key:
+    :return:
+    '''
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), value)
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
 
 
 if __name__ == '__main__':
+    setup_logging()
     main()

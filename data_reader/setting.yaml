@@ -1,0 +1,6 @@
+---
+path:
+    base: os.path.dirname(os.path.abspath(__file__))
+    collect:
+      test: 'xx'
+...

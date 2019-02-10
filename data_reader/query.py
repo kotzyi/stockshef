@@ -1,5 +1,6 @@
 from aenum import IntEnum, NoAlias
 import logging
+from decorator import query_checker
 
 
 class Query(IntEnum, settings=NoAlias):
@@ -97,6 +98,7 @@ class Query(IntEnum, settings=NoAlias):
     def list():
         return [(e.name, e.value) for e in Query]
 
+    @query_checker
     def gen_inquery(self,
                   code='A000030',
                   type=self.TERM,

@@ -75,17 +75,16 @@ def get_min_chart(code, date_to, date_from):
         last_time = str(chart.iloc[-1, 1])
         store_chart(chart.head(1524), code)  # 1524개가 분 차트에서 4일치 데이터
         new_date_to = datetime.datetime.strptime(last_date, "%Y%m%d").strftime('%Y%m%d')
-        logger.debug("NEW_DATE_TO: {}".format(new_date_to))
-        logger.debug("DATE_TO: {}".format(date_to))
-
-        if new_date_to == date_to:
-            break
-        date_to = new_date_to
 
         logger.debug("CHART:\n{}".format(chart))
         logger.debug("LAST: {}-{} TO: {}".format(last_date, last_time, date_from))
 
-    logger.info("DATA READING: SUCCESS {}~{}".format(last_date, date_to))
+        if new_date_to == date_to:
+            break
+
+        date_to = new_date_to
+
+    logger.info("DATA READING: Success ({} ~ {})".format(last_date, date_to))
     return chart
 
 
@@ -110,6 +109,19 @@ def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_k
         logging.basicConfig(level=default_level)
 
 
+def load_configuration(default_path='setting.yaml', env_key='MAIN_CFG'):
+    path = default_path
+    value = os.getenv(env_key, None)
+
+    if value:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), value)
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+
+
+
 if __name__ == '__main__':
     setup_logging()
+    load_configuration()
     main()

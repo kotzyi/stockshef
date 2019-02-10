@@ -1,6 +1,17 @@
 ---
+version: 1
 path:
-    base: os.path.dirname(os.path.abspath(__file__))
-    collect:
-      test: 'xx'
+    local:
+        format: csv
+        base: os.path.dirname(os.path.abspath(__file__)
+        maxBytes: 10485760 # 10MB
+        index: False
+        header: True
+        chart:
+            day: 'base'
+            min: minute
+
+    s3:
+        base: "s3://stock-chart-kr-dev/"
+
 ...

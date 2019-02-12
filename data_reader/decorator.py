@@ -1,7 +1,6 @@
 import time
 from functools import wraps
 import logging
-import datetime
 import sys
 import util
 from logger import LoggerAdapter
@@ -28,6 +27,19 @@ def query_checker(original_function):
             logger.error("전일대비(6)키는 반드시 대비부호(37)키와 같이 사용되어야 함")
             sys.exit(1)
 
+        if chart_class == DAY:
+            if 10 in field_key or 11 in field_key:
+                logger.warn("누적체결매도수량(10)과 누적체결매수수량(11)은 분,틱 요청일때만 제공")
+
+        if chart_class == MIN:
+            for key in field_key:
+                if key in range(12, 22):
+                    logger.warn("키(12~22)는 DAY CHART에만 들어옴")
+
+        for key in field_key:
+            if key in range(22, 27):
+                logger.warn("키(22~26)은 들어오지 않음")
+
     def _code_check(stock_code):
         stock_list = api.get_stock_list('1')
         if stock_code not in stock_list:
@@ -51,15 +63,19 @@ def query_checker(original_function):
             logger.error("DATE_FROM > DATE_TO")
             sys.exit(1)
 
+    def _get_value_from_kwargs(key, kwargs):
+        if key in kwargs:
+            return kwargs[key]
+        else:
+            return original_function.__kwdefaults__[key]
+
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-
-        date_to = kwargs['date_to']
-        date_from = kwargs['date_from']
-        stock_code = kwargs['code']
-
-        chart_class = original_function.__defaults__[6]
-        field_key = kwargs['field_key']
+        date_to = _get_value_from_kwargs('date_to', kwargs)
+        date_from = _get_value_from_kwargs('date_from', kwargs)
+        stock_code = _get_value_from_kwargs('code', kwargs)
+        chart_class = _get_value_from_kwargs('chart_class', kwargs)
+        field_key = _get_value_from_kwargs('field_key', kwargs)
 
         _date_check(date_from=date_from, date_to=date_to)
         _code_check(stock_code)

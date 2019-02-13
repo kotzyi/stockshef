@@ -2,6 +2,7 @@ import os
 import logging.config
 import yaml
 import datetime
+import util
 from collect import Collect
 from read import Read
 from query import Query
@@ -14,12 +15,12 @@ def main():
     read = Read()
     collect = Collect()
     read.check_api_connection()
-    stock_code = 'A005930'
-    field_key = [1,2,3,4,5,22,11,10,12]
-    inquery = read.generate_query(code=stock_code, date_from="20180201", date_to="20180301", field_key=field_key, chart_class=MIN)
+    #stock_code = 'A005930'
 
-    #chart = get_min_chart(code=stock_code, date_from='20190201', date_to='20190208')
-    #collect.save_chart(chart, stock_code)  # 1524개가 분 차트에서 4일치 데이터
+    code_list = read.get_stock_code_list('1')
+    for code in code_list:
+        chart = get_day_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
+        collect.save_chart(chart, code)  # 1524개가 분 차트에서 4일치 데이터
 
 
 def get_day_chart(code, date_to, date_from):
@@ -34,7 +35,6 @@ def get_day_chart(code, date_to, date_from):
     logger = logging.getLogger(__name__)
     logger.info("START TO READ DAY CHART")
     read = Read()
-    collect = Collect()
 
     field_key = [DATE, OPEN, HIGH, LOW, CLOSE, VOL, TRADING_VALUE, NUM_SHARES, MKT_CAP, FOREIGN_OWNER_LIMIT,
                  FOREIGN_OWNER_AVAIL, FOREIGN_OWNER_VOL, FOREIGN_OWNER_RATIO, ADJ_PRICE_DATE, ADJ_PRICE_RATIO,

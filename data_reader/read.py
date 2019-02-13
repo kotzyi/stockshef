@@ -120,11 +120,11 @@ class Read:
         return pd.DataFrame(dict_chart, columns=list_field_name)
 
     @query_checker
-    def generate_query(self,
+    def generate_query(self, *args,
                   code='A000030',
                   type=TERM,
-                  date_to=util.get_today(),
-                  date_from=util.get_today(),
+                  date_to=util.date_to_str(util.get_today()),
+                  date_from=util.date_to_str(util.get_today()),
                   req_cnt=20000,
                   field_key=[DATE, TIME, OPEN, HIGH],
                   chart_class=DAY,

@@ -15,12 +15,14 @@ def main():
     read = Read()
     collect = Collect()
     read.check_api_connection()
-    #stock_code = 'A005930'
+    stock_code = 'A005930'
 
-    code_list = read.get_stock_code_list('1')
-    for code in code_list:
-        chart = get_day_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
-        collect.save_chart(chart, code)  # 1524개가 분 차트에서 4일치 데이터
+    #code_list = read.get_stock_code_list('1')
+    chart = get_min_chart(code=stock_code, date_from='20180302', date_to='20180302')
+    collect.save_chart(chart, stock_code)  # 1524개가 분 차트에서 4일치 데이터
+    #for code in code_list:
+    #    chart = get_min_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
+    #    collect.save_chart(chart, code)  # 1524개가 분 차트에서 4일치 데이터
 
 
 def get_day_chart(code, date_to, date_from):

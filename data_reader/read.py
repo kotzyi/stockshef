@@ -50,6 +50,8 @@ class Read:
                                 19: 'adj_price_ratio', 20: 'int_net_buying', 21: 'int_cul_net_buying', 22: 'adl',
                                 23: 'adr', 24: 'deposit', 25: 'turnover', 26: 'ratio_of_deals', 37: 'c_code'}
 
+        self.full_time = util.get_open_time()
+
     def _check_db_connection(self):
         '''
         DB 접속 여부를 확인하여 접속 여부를 화면에 출력하고 접속되지 않았다면 프로그램 종료
@@ -118,6 +120,13 @@ class Read:
 
         self.logger.debug("RECEIVE COUNT: {}".format(receive_cnt))
         return pd.DataFrame(dict_chart, columns=list_field_name)
+
+    def interpolator(self, chart):
+
+    def check_empty_in_min_chart(self, one_day_chart):
+        difference_set = pd.concat(self.full_time, one_day_chart).drop_duplicates(keep=False)
+
+
 
     @query_checker
     def generate_query(self, *args,

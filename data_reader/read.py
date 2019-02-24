@@ -86,6 +86,9 @@ class Read:
         self._check_creon_connection()
         self._check_db_connection()
 
+    def get_name_from_code(self, code):
+        return self.api.obj_CpCodeMgr.CodeToName(code)
+
     def get_stock_code_list(self, stock_market_num):
         '''
         입력받은 마켓의 코드 리스트를 리턴
@@ -121,10 +124,23 @@ class Read:
         self.logger.debug("RECEIVE COUNT: {}".format(receive_cnt))
         return pd.DataFrame(dict_chart, columns=list_field_name)
 
-    def interpolator(self, chart):
+    #def interpolator(self, chart):
 
-    def check_empty_in_min_chart(self, one_day_chart):
-        difference_set = pd.concat(self.full_time, one_day_chart).drop_duplicates(keep=False)
+    #def check_empty_in_min_chart(self, one_day_chart):
+    #    difference_set = pd.concat(self.full_time, one_day_chart).drop_duplicates(keep=False)
+
+    def split_by_day(self, chart, numdays=1):
+        print(chart.iloc[0, 0])
+        base = util.str_to_date(str(chart.iloc[0, 0]))
+        date_list = [util.date_to_str(base + datetime.timedelta(days=x)) for x in range(0, numdays)]
+        self.logger.debug("date_list: {}".format(date_list))
+        split_chart = chart[chart['date'].isin(date_list)]
+        print("XXXXXXXXXX\n", split_chart)
+        return split_chart
+
+
+
+
 
 
 

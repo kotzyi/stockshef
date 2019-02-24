@@ -1,10 +1,18 @@
 import os
 import logging
-
+import csv
 
 class Collect:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    def save_realtime(self, code, item):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/real/{}.csv'.format(code))
+        self._create_dir(path)
+        with open(path, "a+") as csv_file:
+            writer = csv.writer(csv_file, delimiter=',',lineterminator='\n')
+            writer.writerow(item)
+        self.logger.info("SAVE FILES: {}".format(path))
 
     def save_chart(self, chart, code):
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/chart/{}.csv'.format(code))

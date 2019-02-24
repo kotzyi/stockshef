@@ -15,10 +15,10 @@ def main():
     read = Read()
     collect = Collect()
     read.check_api_connection()
-    stock_code = 'A005930'
+    stock_code = 'A000020'
 
     #code_list = read.get_stock_code_list('1')
-    chart = get_min_chart(code=stock_code, date_from='20180302', date_to='20180302')
+    chart = get_min_chart(code=stock_code, date_from='20180302', date_to='20180305')
     collect.save_chart(chart, stock_code)  # 1524개가 분 차트에서 4일치 데이터
     #for code in code_list:
     #    chart = get_min_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
@@ -77,7 +77,8 @@ def get_min_chart(code, date_to, date_from):
 
         last_date = str(new_chart.iloc[-1, 0])
         last_time = str(new_chart.iloc[-1, 1])
-        chart = collect.append_dataframe(chart, new_chart.head(1524))
+        chart = collect.append_dataframe(chart, new_chart.head(1524)) #1524가 아닐 수 있음.. 바꾸어야 함. 만약 비어있는 분이 있다면..
+        read.split_by_day(chart)
         new_date_to = datetime.datetime.strptime(last_date, "%Y%m%d").strftime('%Y%m%d')
 
         logger.debug("CHART:\n{}".format(chart))

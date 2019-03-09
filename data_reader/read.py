@@ -124,24 +124,50 @@ class Read:
         self.logger.debug("RECEIVE COUNT: {}".format(receive_cnt))
         return pd.DataFrame(dict_chart, columns=list_field_name)
 
-    #def interpolator(self, chart):
+    def interpolator(self, chart, num_day=4):
+        """
+        거래가 일어나지 않아 중간에 비어있는 데이터를 interpolation 하기 위한 함수
+        :param chart:
+        :return:
+        """
+        from collect import Collect
 
-    #def check_empty_in_min_chart(self, one_day_chart):
-    #    difference_set = pd.concat(self.full_time, one_day_chart).drop_duplicates(keep=False)
+        collect = Collect()
+        new_chart = pd.DataFrame()
+        full_time = None
+        for i in range(num_day):
+            full_time = collect.append_dataframe(full_time, self.full_time)
+        full_time = reversed(full_time.values.tolist())
 
-    def split_by_day(self, chart, numdays=1):
-        print(chart.iloc[0, 0])
-        base = util.str_to_date(str(chart.iloc[0, 0]))
-        date_list = [util.date_to_str(base + datetime.timedelta(days=x)) for x in range(0, numdays)]
-        self.logger.debug("date_list: {}".format(date_list))
+        #Add empty rows
+        for chart_index, row in chart.iterrows():
+            for time_index, time in enumerate(full_time):
+                if int(time[0]) == row["time"]:
+                    new_chart = new_chart.append(row)
+                    break
+
+                new_row = pd.Series([str(row["date"]), str(time[0])], index=['date', 'time'])
+                #new_row = pd.Series([row["date"], time[0], null], index=row.index.tolist())
+                new_chart = new_chart.append(new_row, ignore_index=True)
+
+        new_chart = new_chart.interpolate(method='linear', limit_direction='forward', axis=0)
+        new_chart['date'] = new_chart['date'].astype(int).astype('str')
+        new_chart['time'] = new_chart['time'].astype(int).astype('str')
+        return new_chart
+
+
+
+    def split_by_day(self, chart, num_day=1):
+        """
+        차트에서 원하는 날짜의 데이터(가장 최근의 날부터 - numdays 만큼) 스플릿해서 차트를 반환하는 함수
+        :param chart: 주식 차트 데이터
+        :param numdays: 원하는 날짜의 수
+        :return:
+        """
+        all_date_list = chart["date"].drop_duplicates().tolist()
+        date_list = all_date_list[:num_day]
         split_chart = chart[chart['date'].isin(date_list)]
-        print("XXXXXXXXXX\n", split_chart)
         return split_chart
-
-
-
-
-
 
 
     @query_checker

@@ -15,4 +15,4 @@ def str_to_date(s, fmt='%Y%m%d'):
 
 
 def get_open_time():
-    return pd.DataFrame(pd.date_range("09:00", "15:30", freq="1min").strftime('%H%M'))
+    return pd.DataFrame(pd.date_range("09:01", "15:30", freq="1min").strftime('%H%M'))

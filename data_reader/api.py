@@ -192,13 +192,18 @@ class API:
         '''
         return self.obj_CpCodeMgr.GetStockListByMarket(stock_market_num)
 
-    def get_chart_data_count(self):
+    def get_chart_header(self):
         '''
-        차트 데이터의 rows 반환
+        차트 데이터의 header 반환
+        refer: https://documentation.help/CybosPlus/StockChart.htm
 
-        :return: 차트 데이터의 row 수
+        :return: header의 정보 값
         '''
-        return self.obj_StockChart.GetHeaderValue(3)
+        header = {}
+        for key in range(24):
+            value = self.obj_StockChart.GetHeaderValue(key)
+            header[key] = value
+        return header
 
     def get_data_value(self, pos, i):
         '''

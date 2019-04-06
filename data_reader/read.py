@@ -50,6 +50,12 @@ class Read:
                                 19: 'adj_price_ratio', 20: 'int_net_buying', 21: 'int_cul_net_buying', 22: 'adl',
                                 23: 'adr', 24: 'deposit', 25: 'turnover', 26: 'ratio_of_deals', 37: 'c_code'}
 
+        self.list_header_dict = {0: '종목코드', 1: '필드개수', 2: '필드배열', 3: '수신개수', 4: '마지막봉틱수',
+                                 5: '최근거래일', 6: '전일종가', 7: '현재가', 8: '대비부호', 9: '대비', 10: '거래량',
+                                 11: '매도호가', 12: '매수호가', 13: '시가', 14: '고가', 15: '저가', 16: '거래대금',
+                                 17: '종목상태', 18: '상장주식수', 19: '자본금', 20: '전일거래량', 21: '최근갱신시간',
+                                 22: '상한가', 23: '하한가'}
+
         self.full_time = util.get_open_time()
 
     def _check_db_connection(self):
@@ -104,6 +110,24 @@ class Read:
         return self.api.get_stock_list(stock_market_num)
 
     @limit_checker
+    def get_header_info(self, inquery):
+        '''
+        차트 인포 데이터 반환
+        refer: https://documentation.help/CybosPlus/StockChart.htm
+
+        :param query: dictionary 형태의 Configuration
+        :return: 입력한 주식 코드의 헤더 데이터(pandas dataframe)
+        '''
+        info = {}
+        self.api.request_stock_chart(inquery)
+        header = self.api.get_chart_header()
+
+        for key, value in self.list_header_dict.items():
+            info[value] = header[key]
+        return pd.DataFrame(info).head(1)
+
+
+    @limit_checker
     def get_stock_chart(self, inquery):
         '''
         입력받은 쿼리에 대하여 차트 데이터 반환
@@ -114,7 +138,8 @@ class Read:
         self.api.request_stock_chart(inquery)
         list_field_name = [self.list_field_dict[key] for key in inquery[5]]
         dict_chart = {name: [] for name in list_field_name}
-        receive_cnt = self.api.get_chart_data_count()
+        header = self.api.get_chart_header()
+        receive_cnt = header[3] # key=3 the number of rows
 
         for i in range(receive_cnt):
             dict_item = ({name: self.api.get_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})

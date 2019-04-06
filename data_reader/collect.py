@@ -1,6 +1,7 @@
 import os
 import logging
 import csv
+import util
 
 class Collect:
     def __init__(self):
@@ -18,6 +19,16 @@ class Collect:
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/chart/{}.csv'.format(code))
         self._create_dir(path)
         chart.to_csv(path, mode='w+', index=False)
+        self.logger.info("SAVE FILES: {}".format(path))
+
+    def save_info(self, info):
+        today = util.date_to_str(util.get_today())
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/info/{}.csv'.format(today))
+        self._create_dir(path)
+        if os.path.isfile(path):
+            info.to_csv(path, mode='a', index=False, header=False)
+        else:
+            info.to_csv(path, mode='a', index=False)
         self.logger.info("SAVE FILES: {}".format(path))
 
     def append_dataframe(self, chart, new_chart):

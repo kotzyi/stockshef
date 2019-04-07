@@ -6,6 +6,7 @@ class API:
         self.obj_CpCodeMgr = win32com.client.Dispatch('CpUtil.CpCodeMgr')
         self.obj_CpCybos = win32com.client.Dispatch('CpUtil.CpCybos')
         self.obj_StockChart = win32com.client.Dispatch('CpSysDib.StockChart')
+        self.obj_MarketWatch = win32com.client.Dispatch('CpSysDib.CpMarketWatchS')
 
     def request_stock_chart(self, request):
         '''
@@ -15,6 +16,17 @@ class API:
         '''
         for key, value in request.items():
             self.obj_StockChart.SetInputValue(key, value)
+
+        self.obj_StockChart.BlockRequest()
+
+    def request_market_info(self, request):
+        '''
+        데이터 차트 반환
+
+        :param request: 아래 설명된 type 과 value로 이루어진 dictionary
+        '''
+        for key, value in request.items():
+            self.obj_MarketWatch.SetInputValue(key, value)
 
         self.obj_StockChart.BlockRequest()
 
@@ -205,7 +217,21 @@ class API:
             header[key] = value
         return header
 
-    def get_data_value(self, pos, i):
+    def get_market_header(self):
+        """
+
+        :return:
+        """
+        header = {}
+        for key in range(3):
+            value = self.obj_MarketWatch.GetHeaderValue(key)
+            header[key] = value
+        return header
+
+    def get_market_data_value(self, pos, i):
+        return self.obj_MarketWatch.GetDataValue(pos, i)
+
+    def get_chart_data_value(self, pos, i):
         '''
         원하는 데이터 필드 정보 반환 (현재는 사용되지 않음)
 

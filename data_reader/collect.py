@@ -31,6 +31,15 @@ class Collect:
             info.to_csv(path, mode='a', index=False)
         self.logger.info("SAVE FILES: {}".format(path))
 
+    def save_market(self, watch, code):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/market/{}.csv'.format(code))
+        self._create_dir(path)
+        if os.path.isfile(path):
+            watch.to_csv(path, mode='a', index=False, header=False)
+        else:
+            watch.to_csv(path, mode='a', index=False)
+        self.logger.info("SAVE FILES: {}".format(path))
+
     def append_dataframe(self, chart, new_chart):
         if chart is None:
             return new_chart

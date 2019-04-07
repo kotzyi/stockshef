@@ -1,7 +1,6 @@
 import sys
 import pandas as pd
 import logging
-import datetime
 from api import API
 from decorator import limit_checker, query_checker
 from query import Query
@@ -55,6 +54,8 @@ class Read:
                                  11: '매도호가', 12: '매수호가', 13: '시가', 14: '고가', 15: '저가', 16: '거래대금',
                                  17: '종목상태', 18: '상장주식수', 19: '자본금', 20: '전일거래량', 21: '최근갱신시간',
                                  22: '상한가', 23: '하한가'}
+
+        self.list_market_dict = {0: '시간', 1: '작업구분', 2: '특이사항 코드'}
 
         self.full_time = util.get_open_time()
 
@@ -110,7 +111,7 @@ class Read:
         return self.api.get_stock_list(stock_market_num)
 
     @limit_checker
-    def get_header_info(self, inquery):
+    def get_stock_chart_header_info(self, inquery):
         '''
         차트 인포 데이터 반환
         refer: https://documentation.help/CybosPlus/StockChart.htm
@@ -128,6 +129,27 @@ class Read:
 
 
     @limit_checker
+    def get_market_watch(self, inquery):
+        """
+
+        :param inquery:
+        :return:
+        """
+        self.api.request_market_info(inquery)
+        list_field_name = self.list_market_dict
+        dict_chart = {name: [] for name in list_field_name}
+        header = self.api.get_market_header()
+        receive_cnt = header[2] # key=3 the number of rows
+
+        for i in range(receive_cnt):
+            dict_item = ({name: self.api.get_market_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})
+            for k, v in dict_item.items():
+                dict_chart[k].append(v)
+
+        self.logger.debug("RECEIVE COUNT: {}".format(receive_cnt))
+        return pd.DataFrame(dict_chart, columns=list_field_name)
+
+    @limit_checker
     def get_stock_chart(self, inquery):
         '''
         입력받은 쿼리에 대하여 차트 데이터 반환
@@ -142,7 +164,7 @@ class Read:
         receive_cnt = header[3] # key=3 the number of rows
 
         for i in range(receive_cnt):
-            dict_item = ({name: self.api.get_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})
+            dict_item = ({name: self.api.get_chart_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})
             for k, v in dict_item.items():
                 dict_chart[k].append(v)
 
@@ -196,7 +218,7 @@ class Read:
 
 
     @query_checker
-    def generate_query(self, *args,
+    def generate_stock_chart_query(self, *args,
                   code='A000030',
                   type=TERM,
                   date_to=util.date_to_str(util.get_today()),
@@ -224,6 +246,18 @@ class Read:
         """
         query = {0: code, 1: type, 2: date_to, 3: date_from, 4: req_cnt, 5: field_key, 6: chart_class, 8: gap_comp,
          9: adj_price, 10: vol_class}
-        self.logger.debug("GENERATED QUERY: {}".format(query))
+        self.logger.debug("GENERATED STOCK CHART QUERY: {}".format(query))
+
+        return query
+
+    def generate_market_watch_query(self, code='A000030'):
+        """
+        Market Watch를 조회할 수 있는 Dict 형태의 Query 를 반환
+
+        :param code:  종목코드(string): 주식(A003540), 업종(U001), ELW(J517016)의 종목코드 *앞의 A를 반드시 포함하는 코드
+        :return: 입력한 파라메터 형태의 차트 데이터
+        """
+        query = {0: code}
+        self.logger.debug("GENERATED MARKET WATCH QUERY: {}".format(query))
 
         return query

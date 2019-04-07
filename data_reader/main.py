@@ -20,7 +20,7 @@ def main():
 
     code_list = read.get_stock_code_list('1')
     for code in code_list:
-        info = get_header_info(code)
+        info = read.get_stock_chart_header_info(code)
         collect.save_info(info)
     #chart = get_min_chart(code=stock_code, date_from='20180305', date_to='20180308')
     #collect.save_chart(chart, stock_code)  # 1524개가 분 차트에서 4일치 데이터
@@ -40,10 +40,23 @@ def get_header_info(code):
     logger.info("START TO READ HEADER INFO")
     read = Read()
 
-    inquery = read.generate_query(code=code, req_cnt=1)
+    inquery = read.generate_stock_chart_query(code=code, req_cnt=1)
     info = read.get_header_info(inquery)
     logger.info("DATA READING: Code - {})".format(code))
     return info
+
+
+def get_market_watch(code):
+    logger = logging.getLogger(__name__)
+    logger.info("START TO READ MARKET WATCH")
+    read = Read()
+
+    inquery = read.generate_market_watch_query(code=code)
+    chart = read.get_market_watch(inquery)
+    logger.info("DATA READING: Market Watch Data Success (code: {})".format(code))
+
+    return chart
+
 
 def get_day_chart(code, date_to, date_from):
     '''
@@ -62,7 +75,7 @@ def get_day_chart(code, date_to, date_from):
                  FOREIGN_OWNER_AVAIL, FOREIGN_OWNER_VOL, FOREIGN_OWNER_RATIO, ADJ_PRICE_DATE, ADJ_PRICE_RATIO,
                  INT_NET_BUY, INT_CUM_NET_BUY, C_CODE]
 
-    inquery = read.generate_query(code=code, date_from=date_from, date_to=date_to, field_key=field_key)
+    inquery = read.generate_stock_chart_query(code=code, date_from=date_from, date_to=date_to, field_key=field_key)
     chart = read.get_stock_chart(inquery)
     logger.info("DATA READING: Success ({} ~ {})".format(date_from, date_to))
 
@@ -89,7 +102,7 @@ def get_min_chart(code, date_to, date_from):
     # 분 차트에서 2017-01-18이 마지막 날
 
     while not (last_date == date_from and last_time == "901"):
-        inquery = read.generate_query(code=code, date_from=date_from, date_to=date_to, field_key=field_key, chart_class=MIN)
+        inquery = read.generate_stock_chart_query(code=code, date_from=date_from, date_to=date_to, field_key=field_key, chart_class=MIN)
         new_chart = read.get_stock_chart(inquery)
         if new_chart is None:
             logger.error("CHART: NO RETURN DATA")

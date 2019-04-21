@@ -6,7 +6,7 @@ class API:
         self.obj_CpCodeMgr = win32com.client.Dispatch('CpUtil.CpCodeMgr')
         self.obj_CpCybos = win32com.client.Dispatch('CpUtil.CpCybos')
         self.obj_StockChart = win32com.client.Dispatch('CpSysDib.StockChart')
-        self.obj_MarketWatch = win32com.client.Dispatch('CpSysDib.CpMarketWatchS')
+        self.obj_MarketWatch = win32com.client.Dispatch('CpSysDib.CpMarketWatch')
 
     def request_stock_chart(self, request):
         '''
@@ -26,6 +26,7 @@ class API:
         :param request: 아래 설명된 type 과 value로 이루어진 dictionary
         '''
         for key, value in request.items():
+            print("key: ",key, "value: ",value)
             self.obj_MarketWatch.SetInputValue(key, value)
 
         self.obj_StockChart.BlockRequest()

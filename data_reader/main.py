@@ -17,17 +17,22 @@ def main():
     read.check_api_connection()
     stock_code = 'A000020'
 
-
+    chart = get_market_watch(stock_code)
+    print(chart)
+    """
+    #Get Header info
     code_list = read.get_stock_code_list('1')
     for code in code_list:
-        info = read.get_stock_chart_header_info(code)
+        info = get_header_info(code)
         collect.save_info(info)
-    #chart = get_min_chart(code=stock_code, date_from='20180305', date_to='20180308')
+    #chart = get_min_chart(code=stock_code, date_from='20150305', date_to='20180308')
     #collect.save_chart(chart, stock_code)  # 1524개가 분 차트에서 4일치 데이터
-    #for code in code_list:
-    #    chart = get_min_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
-    #    collect.save_chart(chart, code)  # 1524개가 분 차트에서 4일치 데이터
-
+    
+    #Get Min Chart data
+    for code in code_list:
+        chart = get_min_chart(code=code, date_from='20130102', date_to=util.date_to_str(util.get_today()))
+        collect.save_chart(chart, code)
+    """
 
 def get_header_info(code):
     '''
@@ -41,7 +46,7 @@ def get_header_info(code):
     read = Read()
 
     inquery = read.generate_stock_chart_query(code=code, req_cnt=1)
-    info = read.get_header_info(inquery)
+    info = read.get_stock_chart_header_info(inquery)
     logger.info("DATA READING: Code - {})".format(code))
     return info
 

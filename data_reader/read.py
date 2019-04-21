@@ -135,11 +135,13 @@ class Read:
         :param inquery:
         :return:
         """
+        print("inquery", inquery)
         self.api.request_market_info(inquery)
         list_field_name = self.list_market_dict
         dict_chart = {name: [] for name in list_field_name}
         header = self.api.get_market_header()
-        receive_cnt = header[2] # key=3 the number of rows
+        print("HEADER::", header)
+        receive_cnt = header[2] # key=2 the number of rows
 
         for i in range(receive_cnt):
             dict_item = ({name: self.api.get_market_data_value(pos, i) for pos, name in zip(range(len(list_field_name)), list_field_name)})

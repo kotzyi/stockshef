@@ -40,7 +40,7 @@ FIVEMIN_INCDEC_RATE = 0.025
 SERVER_ADDR = "localhost"
 SERVER_PORT = 8000
 SERVER_URL = "http://%s:%s" % (SERVER_ADDR, SERVER_PORT)
-SERVER_API_URL = "http://%s:%s/api" % (SERVER_ADDR, SERVER_PORT)
+SERVER_API_URL = "http://%s:%s/reader" % (SERVER_ADDR, SERVER_PORT)
 SERVER_WS_URL = "ws://%s:%s/ws" % (SERVER_ADDR, SERVER_PORT)
 
 

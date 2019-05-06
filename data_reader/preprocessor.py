@@ -16,7 +16,7 @@ def main():
     filter.set_condition()
 
 def filter_by_market_watch():
-    
+
 def filter_by_stock_header():
 
 

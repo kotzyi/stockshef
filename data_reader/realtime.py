@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import *
 import win32com.client
 import ctypes
-from api import API
+from reader import API
 from read import Read
 import logging
 import os
@@ -100,7 +100,7 @@ class MinChart:
         code = item['code']
         time = item['time']
         cur = item['cur']
-        self.make_minc_hart(code, time, cur)
+        self.make_min_chart(code, time, cur)
 
     def make_min_chart(self, code, time, cur):
         hh, mm = divmod(time, 10000)

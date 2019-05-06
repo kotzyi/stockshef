@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 import logging
-from api import API
+from reader import API
 from decorator import limit_checker, query_checker
 from query import Query
 import util
@@ -40,7 +40,7 @@ class Read:
             26:거래성립률(float)
             37:대비부호(char) - 수신값은 GetHeaderValue 8 대비부호와동일
         '''
-        self.logger = logging.getLogger( __name__)
+        self.logger = logging.getLogger(__name__)
         self.api = API()
         self.list_field_dict = {0: 'date', 1: 'time', 2: 'open', 3: 'high', 4: 'low', 5: 'close', 6: 'DoD', 8: 'volume',
                                 9: 'trading_value', 10: 'sell_vol', 11: 'buy_vol', 12: 'the_number_of_shares',

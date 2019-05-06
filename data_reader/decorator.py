@@ -4,7 +4,7 @@ import logging
 import sys
 import util
 from logger import LoggerAdapter
-from api import API
+from reader import API
 from query import Query
 
 

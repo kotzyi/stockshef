@@ -1,4 +1,4 @@
-from api import API
+from reader import API
 import sys
 import pandas as pd
 
